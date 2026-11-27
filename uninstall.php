@@ -1,20 +1,18 @@
 <?php
 /**
- * Sticky Order — uninstall cleanup.
+ * Sticky Order —— 卸载清理。
  *
- * Runs only when the plugin is deleted through wp-admin, not on deactivation.
- * Deactivation keeps the saved queue so re-activating restores the order.
+ * 只在后台删除插件时运行，停用时不运行。
+ * 停用会保留已保存的队列，重新启用即可恢复顺序。
  *
- * The plugin creates no files, directories, custom tables, cron events, or
- * transients. The only persistent data is the queue option.
+ * 插件不创建任何文件、目录、自定义表、定时任务或 transient，
+ * 唯一持久化的数据就是存队列的 option。
  *
- * The option name is filterable via `sticky_order_option_name`, but the filter
- * (and the whole plugin) is NOT loaded in the uninstall context. We therefore
- * delete the known default name and sweep every `sticky_order_*` option by
- * prefix. Custom option names must keep that prefix to be cleaned up here.
+ * option 名可通过 `sticky_order_option_name` 过滤，但卸载时插件（含该过滤器）
+ * 不会被加载。因此这里先删已知的默认名，再按 `sticky_order_` 前缀清扫同名 option；
+ * 自定义的 option 名必须保留该前缀，才会被一并删除。
  *
- * Note: the core `sticky_posts` option belongs to WordPress itself and is
- * deliberately left untouched.
+ * 注意：核心的 `sticky_posts` option 属于 WordPress 本身，这里有意不动。
  *
  * @package StickyOrder
  */
@@ -24,7 +22,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 /**
- * Delete the plugin options for the current site.
+ * 删除当前站点的插件 option。
  *
  * @return void
  */
@@ -34,11 +32,11 @@ function sticky_order_uninstall_site_options() {
 	global $wpdb;
 
 	/*
-	 * Sweep custom names set through the `sticky_order_option_name` filter.
-	 * The prefix is unique to this plugin, so collateral damage is unlikely.
-	 * delete_option() is used per row so the option cache is cleared too.
+	 * 清扫通过 `sticky_order_option_name` 过滤器设置的自定义名。
+	 * 该前缀在本站唯一，误删的可能性很低。
+	 * 逐条调用 delete_option()，顺带清掉 option 缓存。
 	 */
-	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Uninstall cleanup: no WP API exists for listing options by prefix; delete_option() handles the cache.
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- 卸载清理：WordPress 没有按前缀列出 option 的 API，缓存由 delete_option() 处理。
 	$option_names = $wpdb->get_col(
 		$wpdb->prepare(
 			"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",

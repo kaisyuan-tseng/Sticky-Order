@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Sticky Order
  * Plugin URI: https://github.com/kaisyuan-tseng/Sticky-Order
- * Description: Turn sticky posts into an ordered queue. WordPress sticky still decides which posts are pinned; Sticky Order decides their order, independent of publish dates. Reorder by drag and drop under Posts, optionally grouped by taxonomy, and let front-end and REST post lists use the saved order automatically — no backdating, no theme changes.
- * Version: 3.0.0
+ * Description: Turn sticky posts into an ordered queue. The WordPress sticky flag still decides which posts are sticky; Sticky Order decides their order, independent of publish dates. Reorder by drag and drop under Posts, optionally split into one queue per group, and let front-end and REST post lists use the saved order automatically - no backdating, no theme changes.
+ * Version: 3.0.1
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: kaisyuan-tseng
@@ -13,7 +13,7 @@
  * Text Domain: sticky-order
  * Domain Path: /languages
  *
- * Generic plugin: no site-specific term names, post types, or UI copy.
+ * Generic plugin: no site-specific term names, post types, or UI strings.
  * Site policy is injected through the filters listed in readme.txt.
  *
  * @wordpress-plugin
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'STICKY_ORDER_VERSION' ) ) {
-	define( 'STICKY_ORDER_VERSION', '3.0.0' );
+	define( 'STICKY_ORDER_VERSION', '3.0.1' );
 }
 if ( ! defined( 'STICKY_ORDER_DIR' ) ) {
 	define( 'STICKY_ORDER_DIR', plugin_dir_path( __FILE__ ) );
@@ -36,10 +36,9 @@ if ( ! defined( 'STICKY_ORDER_URL' ) ) {
 }
 
 /**
- * Load the plugin translations.
+ * 加载插件翻译。
  *
- * Hooked on `init` (not `admin_init`) so REST field descriptions are translated
- * on front-end requests too.
+ * 挂在 `init`（不是 `admin_init`），这样前台请求里的 REST 字段描述也能翻译。
  */
 add_action(
 	'init',
@@ -54,7 +53,7 @@ add_action(
  * 分组清单：array( group_slug => 显示名 )。
  *
  * 返回空数组时插件退化成「单队列」模式 —— 所有置顶文章共用一条队列，
- * 后台只有一栏，REST 的 rank 是全局序号。
+ * 后台只显示一个队列区块，REST 的 sticky_order_position 是全局序号。
  */
 function sticky_order_groups() {
 	$groups = (array) apply_filters( 'sticky_order_groups', array() );
@@ -72,7 +71,7 @@ function sticky_order_groups() {
 }
 
 /**
- * 队列 key 列表：把「没配分组 = 单队列 default」这条规则收在一处，
+ * 队列键名列表：把「没配分组 = 单队列 default」这条规则收在一处，
  * 队列计算、后台渲染、保存校验都读它，不必各自判断一遍。
  *
  * @return string[]
@@ -111,27 +110,26 @@ function sticky_order_menu_parent() {
 }
 
 /**
- * Admin UI labels.
+ * 后台界面文案。
  *
- * Defaults are English strings; most are msgids translated through the
- * `sticky-order` text domain (zh_CN is bundled in /languages). The plugin name
- * and menu label stay English in every locale. Sites may override any or all
- * keys through the `sticky_order_labels` filter; the filter receives the
- * defaults, and missing keys fall back to them.
+ * 默认值都是英文 msgid，经 `sticky-order` 文本域翻译（/languages 内置 zh_CN）。
+ * 插件列表里的插件名始终是英文；页面标题与菜单名属于界面文案，跟随站点语言。
+ * 站点可通过 `sticky_order_labels` 过滤器覆盖任意键：过滤器收到默认值，
+ * 缺键时回退到默认值。
  *
  * @return array<string,string>
  */
 function sticky_order_labels() {
 	$defaults = array(
-		'page_title'    => 'Sticky Order',
-		'menu_title'    => 'Sticky Order',
+		'page_title'    => __( 'Sticky Order', 'sticky-order' ),
+		'menu_title'    => __( 'Sticky Order', 'sticky-order' ),
 		'single_title'  => __( 'All sticky posts', 'sticky-order' ),
-		'empty_group'   => __( 'No sticky posts in this group yet. Check "Sticky" on a post edit screen and it will appear here automatically.', 'sticky-order' ),
-		'drag_hint'     => __( 'Drag the handle on the left to reorder; higher means earlier.', 'sticky-order' ),
-		'save'          => __( 'Save changes', 'sticky-order' ),
+		'empty_group'   => __( 'No sticky posts yet. Check "Sticky" in the post editor and the post will appear here automatically.', 'sticky-order' ),
+		'drag_hint'     => __( 'Drag the handle on the left to reorder. Posts at the top come first.', 'sticky-order' ),
+		'save'          => __( 'Save Changes', 'sticky-order' ),
 		'saved'         => __( 'Order saved.', 'sticky-order' ),
 		'no_thumb'      => __( 'No featured image', 'sticky-order' ),
-		'orphans_title' => __( 'These sticky posts do not belong to any group and will not appear in a queue:', 'sticky-order' ),
+		'orphans_title' => __( 'These sticky posts are not in any group and will not appear in any queue:', 'sticky-order' ),
 		'orphans_hint'  => __( 'Assign them a category that matches a group.', 'sticky-order' ),
 	);
 

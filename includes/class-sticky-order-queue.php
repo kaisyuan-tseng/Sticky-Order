@@ -1,6 +1,6 @@
 <?php
 /**
- * 队列计算 —— 插件的全部业务规则都在这里，且只在请求内算一次。
+ * 队列计算 —— 插件的所有业务规则都在这里，且只在请求内算一次。
  *
  * 规则：
  *   1. 只有「已发布 + 已置顶」的文章进队列 —— 置顶开关仍由 WordPress 原生的
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Queue resolution and lookup.
+ * 队列解析与查询。
  */
 class Sticky_Order_Queue {
 
@@ -30,7 +30,7 @@ class Sticky_Order_Queue {
 	private static $cache = null;
 
 	/**
-	 * 解析出全部队列。
+	 * 解析所有队列。
 	 *
 	 * @return array{
 	 *     queues: array<string,int[]>,
@@ -82,7 +82,7 @@ class Sticky_Order_Queue {
 		foreach ( $posts as $post ) {
 			$id = (int) $post->ID;
 
-			/* 没分到组的也要收进索引：后台的「孤儿」提示靠它 */
+			/* 没分到组的也要收进索引：后台的「未归组」提示靠它 */
 			$indexed[ $id ] = $post;
 
 			$group = self::group_for( $post, $groups );
@@ -129,8 +129,8 @@ class Sticky_Order_Queue {
 	}
 
 	/**
-	 * 某篇文章归属的队列 key；不属于任何队列时返回 null。
-	 * $groups 为空即单队列模式，全部归到 default。
+	 * 某篇文章归属的队列键名；不属于任何队列时返回 null。
+	 * $groups 为空即单队列模式，所有文章都归到 default。
 	 *
 	 * @param WP_Post              $post   文章.
 	 * @param array<string,string> $groups 分组清单（调用方传入，避免逐篇重复跑 filter）.
@@ -157,7 +157,7 @@ class Sticky_Order_Queue {
 
 	/**
 	 * 置顶了、但不属于任何分组的文章 ID —— 后台提示出来，
-	 * 否则会出现「明明置顶了却哪都不显示」的哑谜。
+	 * 否则会出现「明明置顶了却哪里都不显示」的情况。
 	 *
 	 * @return int[]
 	 */
@@ -179,9 +179,9 @@ class Sticky_Order_Queue {
 	}
 
 	/**
-	 * 查询层使用的置顶 ID 顺序：先按队列顺序，再补上不属于任何队列的孤儿。
+	 * 查询层使用的置顶 ID 顺序：先按队列顺序，再补上未归组的置顶文章。
 	 *
-	 * 孤儿（置顶但没有命中分组）没有队列位置，统一排在队尾，
+	 * 未归组置顶（不属于任何分组）没有队列位置，统一排在队尾，
 	 * 这样既不会丢失核心 sticky 的置顶语义，也不会插进任何分组队首。
 	 *
 	 * @return int[]
@@ -217,7 +217,7 @@ class Sticky_Order_Queue {
 	}
 
 	/**
-	 * 某文章所属的队列 key；不在队列里返回 null。
+	 * 某文章所属的队列键名；不在队列里返回 null。
 	 *
 	 * @param int $post_id 文章 ID.
 	 * @return string|null

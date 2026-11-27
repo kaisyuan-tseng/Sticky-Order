@@ -19,7 +19,7 @@ PO_PATH = os.path.join(LANG_DIR, "sticky-order-zh_CN.po")
 
 # Keep the POT header version in sync with the plugin header / readme stable tag.
 PROJECT_NAME = "Sticky Order"
-PROJECT_VERSION = "3.0.0"
+PROJECT_VERSION = "3.0.1"
 DOMAIN = "sticky-order"
 POT_PLURAL_FORMS = "nplurals=2; plural=(n != 1);"
 
@@ -98,12 +98,23 @@ def write_mo(header: str, entries) -> None:
             f"Plural-Forms: {plural}\n"
         ).encode("utf-8")
     )
-    for msgid, msgstr in entries:
+    # The MO spec requires the original strings table to be sorted, and an entry
+    # with an empty msgstr would make WordPress print an empty string instead of
+    # falling back to the msgid. Skip those; msgfmt behaves the same way.
+    for msgid, msgstr in sorted(entries):
+        if not msgstr:
+            continue
         keys.append(msgid.encode("utf-8"))
         vals.append(msgstr.encode("utf-8"))
 
     n = len(keys)
-    keystart = 7 * 4 + 16 * n
+    originals_addr = 7 * 4
+    translations_addr = originals_addr + 8 * n
+    # No hash table (length 0), so the hash offset must point past both tables.
+    # Writing 0 here makes WordPress's pomo reader reject the whole file
+    # (translations_length becomes negative), which silently disables the catalog.
+    hash_addr = translations_addr + 8 * n
+    keystart = hash_addr
     valuestart = keystart + sum(len(k) + 1 for k in keys)
 
     koffsets, voffsets = [], []
@@ -119,7 +130,16 @@ def write_mo(header: str, entries) -> None:
         vdata += v + b"\x00"
         offset += len(v) + 1
 
-    output = struct.pack("Iiiiiii", 0x950412DE, 0, n, 7 * 4, 7 * 4 + n * 8, 0, 0)
+    output = struct.pack(
+        "Iiiiiii",
+        0x950412DE,
+        0,
+        n,
+        originals_addr,
+        translations_addr,
+        0,
+        hash_addr,
+    )
     for length, off in koffsets:
         output += struct.pack("ii", length, off)
     for length, off in voffsets:

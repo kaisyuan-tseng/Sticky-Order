@@ -1,6 +1,6 @@
 # Sticky Order · 前端对接说明
 
-一份给**任何前端**看的接入文档。插件已经在服务端把置顶队列应用到前台查询和 REST 文章列表；默认情况下，前端**只需要按接口返回的顺序渲染**，不需要读字段、不需要排序。
+一份面向任意前端的接入文档。插件已经在服务端把置顶队列应用到前台查询和 REST 文章列表；默认情况下，前端**只需要按接口返回的顺序渲染**，不需要读字段、不需要排序。
 
 ---
 
@@ -10,8 +10,8 @@
 |---|---|
 | 按接口返回顺序渲染 | 不需要额外排序；队列已经生效 |
 | 删除前端已有的 sticky/featured 排序 | 如果前端按日期或自己的字段重排，会覆盖服务端顺序 |
-| 静态站/ISR 做缓存失效 | 保存排序后触发重新验证或重建（见 §6） |
-| 可选：读两个字段 | 只有需要队列 key 或位置的自定义 UI 才需要（见 §4） |
+| 静态站/ISR 做缓存失效 | 保存顺序后触发重新验证或重建（见 §6） |
+| 可选：读两个字段 | 只有需要队列键名或位置的自定义 UI 才需要（见 §4） |
 
 **不需要**：新端点、新的请求参数、新的查询参数、额外的 REST 请求、前端排序库。
 
@@ -19,12 +19,12 @@
 
 ## 2. 插件在服务端做了什么
 
-- **成员**仍由 WordPress 原生 sticky 决定：编辑页勾选「置顶」。
-- **顺序**由后台「Sticky Order」页面拖拽保存。
+- **成员**仍由 WordPress 原生 sticky 决定：文章编辑页勾选「置顶」。
+- **顺序**由后台「置顶排序」页面拖拽保存。
 - **应用范围**：前台 `WP_Query` 列表 + REST 文章集合。
-- **结果**：队列内的置顶文章按保存顺序排在最前；其余文章保持原查询顺序；不属于任何分组的孤儿置顶排在队尾。
-- **分组顺序**：未过滤的列表按后台分组顺序排列置顶文章，组内再按队列顺序；前端按 `sticky_order_queue` 过滤即可得到单栏顺序。
-- **时机**：排序发生在 SQL 的 `LIMIT/OFFSET` 之前，因此分页、`found_posts`、REST 的 `X-WP-Total` / `X-WP-TotalPages` 都一致。
+- **结果**：队列内的置顶文章按保存顺序排在最前；其余文章保持原查询顺序；不属于任何分组的置顶文章（下文简称「未归组置顶」）排在队尾。
+- **分组顺序**：未过滤的列表按后台分组顺序排列置顶文章，组内再按队列顺序；前端按 `sticky_order_queue` 过滤即可得到单条队列的顺序。
+- **时机**：队列顺序在 SQL 的 `LIMIT/OFFSET` 之前就已确定，因此分页、`found_posts`、REST 的 `X-WP-Total` / `X-WP-TotalPages` 都一致。
 - **默认不重排**：后台列表、`get_posts()`（默认 `suppress_filters => true`）、admin-ajax 查询。
 - **退出机制**：`sticky_order_apply_to_query` 过滤器，或 `WP_Query` 参数 `sticky_order_skip => true`。
 
@@ -50,7 +50,7 @@ GET /wp-json/wp/v2/posts?categories=123&per_page=12
 
 用 `_fields` 裁剪响应时：
 
-- 不需要字段：`_fields=id,slug,title` 即可，排序不受影响。
+- 不需要字段：`_fields=id,slug,title` 即可，顺序不受影响。
 - 需要字段：把两个字段列进去，例如：
 
 ```text
@@ -64,11 +64,11 @@ _fields=id,slug,title,date,sticky_order_position,sticky_order_queue
 ### 3.3 分页
 
 - `per_page` 最大 100；队列顺序跨页连续，不需要在前端二次排序。
-- 如果前端需要完整的置顶队列（例如全部 featured 槽位），按页拉完再按返回顺序拼接，不要按日期重排。
+- 如果前端需要完整的置顶队列（例如所有 featured 槽位），按页拉完再按返回顺序拼接，不要按日期重排。
 
 ### 3.4 自定义 post type
 
-REST 字段和排序只对 `sticky_order_post_types` 返回的类型生效，默认只有 `post`。如果前端查询自定义 post type：
+REST 字段和队列顺序只对 `sticky_order_post_types` 返回的类型生效，默认只有 `post`。如果前端查询自定义 post type：
 
 1. 在站点侧把该类型加进 `sticky_order_post_types`；
 2. 确保该类型 `show_in_rest => true`；
@@ -80,16 +80,16 @@ REST 字段和排序只对 `sticky_order_post_types` 返回的类型生效，默
 
 | 字段 | 类型 | 含义 |
 |---|---|---|
-| `sticky_order_position` | `number \| null` | 队列内位置，0 起；不在队列为 `null` |
-| `sticky_order_queue` | `string \| null` | 所属队列 key；单队列模式为 `default` |
+| `sticky_order_position` | `number \| null` | 队列内位置，从 0 开始；不在队列为 `null` |
+| `sticky_order_queue` | `string \| null` | 所属队列的键名；单队列模式为 `default` |
 
 使用规则：
 
 - `null` 表示未置顶、未发布或不属于任何分组，**不要当成 0**。
 - position 只在同一个 queue 内有意义，不能跨 queue 比较。
-- 一篇文章只进一条队列（插件取第一个命中的分组分类）；多分类文章请按 `sticky_order_queue` 过滤，不要只按分类过滤。
-- 孤儿置顶（置顶但不属于任何分组）：字段为 `null`，服务端会把它排在队列文章之后；如果前端过滤 `queue !== null`，它不会出现在队列列表里，这是预期行为。
-- 字段只读；排序仍只能在 WP 后台做。
+- 一篇文章只进一条队列：插件取它第一个命中分组的分类；多分类文章请按 `sticky_order_queue` 过滤，不要只按分类过滤。
+- 未归组置顶（置顶但不属于任何分组）：字段为 `null`，服务端会把它排在队列文章之后；如果前端过滤 `queue !== null`，它不会出现在队列列表里，这是预期行为。
+- 字段只读；顺序仍只能在 WP 后台调整。
 
 ---
 
@@ -139,7 +139,7 @@ GET /wp-json/wp/v2/posts?categories=123&per_page=12
 
 ## 6. 缓存与静态构建
 
-插件保存排序时只更新 option，**不会清前端缓存、不会触发重建**。静态站/ISR 需要自己接一下：
+插件保存顺序时只更新 option，**不会清前端缓存、不会触发重建**。静态站/ISR 需要自己接一下：
 
 - 给队列请求加缓存 tag（如 `sticky-order`）；
 - 在 WordPress 侧监听保存，调用前端 revalidate API 或 deploy hook；
@@ -177,7 +177,7 @@ add_action(
 
 ### 7.1 传统主题 / PHP
 
-- 主查询和普通 `WP_Query` 列表已经自动按队列排序，主题不需要改。
+- 主查询和普通 `WP_Query` 列表已经自动套用队列顺序，主题不需要改。
 - `get_posts()` 默认 `suppress_filters => true`，不会重排；需要队列顺序时改用 `WP_Query` 并设置 `suppress_filters => false`。
 - 直接读队列数据：
 
@@ -206,10 +206,10 @@ Sticky_Order_Queue::ordered_ids();               // 置顶 ID 的完整顺序
 ## 8. 常见坑
 
 - **fetch 完又按日期 sort**：会覆盖服务端顺序，必须删除。
-- **`_fields` 没包含字段**：只有前端需要读字段时才需要列进去；排序本身不受影响。
+- **`_fields` 没包含字段**：只有前端需要读字段时才需要列进去；顺序本身不受影响。
 - **从 `_embedded` 读字段**：可能读不到，直接请求文章列表。
 - **把 `sticky_order_position` 当全局排名**：它是每个 queue 内的位置。
-- **把 `null` 当 0**：未入队文章会被错误地排到最前。
+- **把 `null` 当 0**：不在队列中的文章会被错误地排到最前。
 - **只按分类过滤**：多分类文章可能属于另一条队列；按 `sticky_order_queue` 过滤。
 - **每页单独排序**：队列顺序跨页连续，按返回顺序拼接即可。
 - **依赖 REST 的 `ignore_sticky` 参数控制队列**：插件会在支持的类型上统一应用队列；要退出用 `sticky_order_apply_to_query` 或 `sticky_order_skip`。
@@ -236,21 +236,12 @@ Sticky_Order_Queue::ordered_ids();               // 置顶 ID 的完整顺序
 ## 10. 本站映射
 
 当前站点在 `wp-content/mu-plugins/sticky-order-config.php` 里自动从 WordPress 分类生成队列：
-分类名作为后台栏目标题，顺序按分类创建顺序；空分类也会显示（方便先建栏目再置顶文章），
-只跳过空的 Uncategorized 系统术语。新增分类会自动出现在后台；如果前端要展示新栏目，
-再补对应的 slug 映射。
+分类名作为后台分组的标题，按分类创建顺序排列；空分类也会显示（方便先建分类再置顶文章），
+只跳过空的 Uncategorized 系统术语。新增分类会自动出现在后台。
 
-当前三条队列：
-
-| queue key | 后台分栏 | 前台位置 |
-|---|---|---|
-| `guides` | Guides | `/resources/guides` |
-| `applications` | Applications | `/resources/applications` |
-| `cases` | Cases | `/resources/cases` |
-
-前端对应位置：
+前端按当前分类 slug 与前台栏目对应：
 
 - `src/lib/wordpress.ts` 的 `CATEGORY_BINDING`
 - `src/lib/resources-source.ts` 的 `headerFeatured` / `featuredRank`
 
-如果后台新增/改名分组，记得同步更新前端的 queue key 映射。
+如果后台新增或改名分类，记得同步更新前端的队列键名映射。

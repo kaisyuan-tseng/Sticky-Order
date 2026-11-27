@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Admin settings page controller.
+ * 后台排序页控制器。
  */
 class Sticky_Order_Admin {
 
@@ -24,14 +24,14 @@ class Sticky_Order_Admin {
 	 */
 	private static $hook = '';
 
-	/** Register the admin hooks. */
+	/** 注册后台钩子。 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
 		add_action( 'admin_post_sticky_order_save', array( __CLASS__, 'save' ) );
 	}
 
-	/** Add the submenu page under the configured parent menu. */
+	/** 在配置的父菜单下添加子菜单页。 */
 	public static function menu() {
 		$labels = sticky_order_labels();
 
@@ -70,7 +70,7 @@ class Sticky_Order_Admin {
 	 */
 	public static function save() {
 		if ( ! current_user_can( sticky_order_capability() ) ) {
-			wp_die( esc_html__( 'You are not allowed to do that.', 'sticky-order' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'Sorry, you are not allowed to do that.', 'sticky-order' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( 'sticky_order_save' );
@@ -105,7 +105,7 @@ class Sticky_Order_Admin {
 	 * 渲染一行：手柄 + 缩略图 + 标题 + 作者 + 日期。
 	 *
 	 * @param int     $id     文章 ID.
-	 * @param string  $group  所属队列 key.
+	 * @param string  $group  所属队列的键名.
 	 * @param WP_Post $post   文章对象.
 	 * @param array   $labels 界面文案.
 	 */
@@ -146,7 +146,7 @@ class Sticky_Order_Admin {
 	/** 渲染后台排序页面。 */
 	public static function render() {
 		if ( ! current_user_can( sticky_order_capability() ) ) {
-			wp_die( esc_html__( 'You are not allowed to do that.', 'sticky-order' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'Sorry, you are not allowed to do that.', 'sticky-order' ), '', array( 'response' => 403 ) );
 		}
 
 		$labels = sticky_order_labels();

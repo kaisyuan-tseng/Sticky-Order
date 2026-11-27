@@ -17,16 +17,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * REST field registration.
+ * REST 字段注册。
  */
 class Sticky_Order_REST {
 
-	/** Register the REST field hook. */
+	/** 注册 REST 字段钩子。 */
 	public static function init() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register' ) );
 	}
 
-	/** Register the two read-only post fields. */
+	/** 注册两个只读的文章字段。 */
 	public static function register() {
 		$post_types = sticky_order_post_types();
 		if ( ! $post_types ) {
@@ -36,7 +36,7 @@ class Sticky_Order_REST {
 		$fields = array(
 			'sticky_order_position' => array(
 				'method'      => 'position_of',
-				'description' => __( 'Index within its sticky queue (0-based); null when the post is not queued.', 'sticky-order' ),
+				'description' => __( 'Position in its sticky queue, starting at 0; null when the post is not queued.', 'sticky-order' ),
 				'type'        => array( 'integer', 'null' ),
 			),
 			'sticky_order_queue'    => array(

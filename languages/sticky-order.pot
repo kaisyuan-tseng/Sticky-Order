@@ -1,22 +1,25 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Sticky Order 3.0.0\n"
+"Project-Id-Version: Sticky Order 3.0.1\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: manual\n"
 
+msgid "Sticky Order"
+msgstr ""
+
 msgid "All sticky posts"
 msgstr ""
 
-msgid "No sticky posts in this group yet. Check \"Sticky\" on a post edit screen and it will appear here automatically."
+msgid "No sticky posts yet. Check \"Sticky\" in the post editor and the post will appear here automatically."
 msgstr ""
 
-msgid "Drag the handle on the left to reorder; higher means earlier."
+msgid "Drag the handle on the left to reorder. Posts at the top come first."
 msgstr ""
 
-msgid "Save changes"
+msgid "Save Changes"
 msgstr ""
 
 msgid "Order saved."
@@ -25,16 +28,16 @@ msgstr ""
 msgid "No featured image"
 msgstr ""
 
-msgid "These sticky posts do not belong to any group and will not appear in a queue:"
+msgid "These sticky posts are not in any group and will not appear in any queue:"
 msgstr ""
 
 msgid "Assign them a category that matches a group."
 msgstr ""
 
-msgid "You are not allowed to do that."
+msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-msgid "Index within its sticky queue (0-based); null when the post is not queued."
+msgid "Position in its sticky queue, starting at 0; null when the post is not queued."
 msgstr ""
 
 msgid "Key of the queue the post belongs to; null when the post is not queued."

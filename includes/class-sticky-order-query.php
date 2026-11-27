@@ -17,11 +17,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Applies the queue order to post queries.
+ * 把队列顺序应用到文章查询。
  */
 class Sticky_Order_Query {
 
-	/** Register the query hooks. */
+	/** 注册查询钩子。 */
 	public static function init() {
 		add_action( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
 		add_filter( 'posts_orderby', array( __CLASS__, 'posts_orderby' ), 99, 2 );
@@ -72,7 +72,7 @@ class Sticky_Order_Query {
 
 		/*
 		 * CASE 先把所有置顶文章分到同一组；FIELD 再让它们按队列表顺序排列，
-		 * 孤儿因为排在 ordered_ids() 末尾，自然落在队尾。非置顶文章保持原查询顺序。
+		 * 未归组置顶因为排在 ordered_ids() 末尾，自然落在队尾。非置顶文章保持原查询顺序。
 		 * 占位符交给 $wpdb->prepare()，两个子句共用同一份 ID 列表。
 		 */
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name comes from $wpdb.
@@ -113,10 +113,10 @@ class Sticky_Order_Query {
 			&& self::includes_supported_post_type( $query );
 
 		/**
-		 * Filters whether the sticky queue order is applied to a query.
+		 * 过滤是否对某次查询应用队列顺序。
 		 *
-		 * @param bool     $apply Whether to apply the order.
-		 * @param WP_Query $query Query being filtered.
+		 * @param bool     $apply 是否应用该顺序.
+		 * @param WP_Query $query 被过滤的查询.
 		 */
 		return (bool) apply_filters( 'sticky_order_apply_to_query', $default, $query );
 	}

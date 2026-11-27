@@ -4,24 +4,24 @@ Tags: sticky, order, queue, rest, headless
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Turn sticky posts into an ordered queue. WordPress sticky decides which posts are pinned;
-Sticky Order decides their order, independent of publish dates. Front-end and REST post
-lists use the saved order automatically.
+Turn sticky posts into an ordered queue. The WordPress sticky flag decides which posts are
+sticky; Sticky Order decides their order, independent of publish dates. Front-end and REST
+post lists use the saved order automatically.
 
 == Description ==
 
-WordPress core exposes sticky as a boolean. A post is either stickied or not, and the
-order among stickied posts still comes from the publish date. Promoting an older post
+WordPress core exposes sticky as a boolean. A post is either sticky or not, and the
+order among sticky posts still comes from the publish date. Promoting an older post
 therefore means backdating it, which also changes the date shown on the article, its
 position in archives, and the related-posts list.
 
 This plugin splits membership from order. Membership still uses the native sticky
 checkbox in the post editor; order lives in a separate option and is edited by dragging
-rows on the admin page under Posts. Publish dates are never touched.
+rows on the Sticky Order page under Posts. Publish dates are never touched.
 
 The saved order is applied at the query layer. Queued sticky posts are pinned to the top
 of front-end and REST post lists in queue order, then the rest of the list keeps its
@@ -31,7 +31,7 @@ original order. Ordering happens in SQL before the page limit, so pagination,
 What it actually does:
 
 * Groups queues by any taxonomy, one independent queue per group. With no groups
-  configured, all stickied posts share a single queue.
+  configured, all sticky posts share a single queue.
 * Pins queued sticky posts to the top of front-end and REST post lists, before pagination.
   Admin list tables are not reordered.
 * Exposes two read-only REST fields, `sticky_order_position` and `sticky_order_queue`, for
@@ -39,12 +39,12 @@ What it actually does:
   order.
 * Appends newly stickied posts to the tail in reverse-date order; they never jump ahead.
 * Drops posts automatically when they are unstickied or unpublished. No stale IDs to clean.
-* Lists stickied posts that match no group at the bottom of the admin page, so a post
-  never silently disappears. Orphaned sticky posts are pinned after the queued posts.
+* Lists sticky posts that match no group at the bottom of the admin page, so a post
+  never silently disappears; those posts are ordered after every queued post.
 * Disabling the plugin simply removes the query order and REST fields; consumers fall back
-  to date order.
+  to the query's own order.
 
-The plugin contains no site-specific term names, post types, or copy. Groups, labels,
+The plugin contains no site-specific term names, post types, or UI strings. Groups, labels,
 capability, menu location, option name, and post types are all injected through filters,
 so the directory can be copied to any other site as is. Admin UI strings use gettext:
 source msgids are English and a Simplified Chinese catalog is bundled in `/languages`.
@@ -55,8 +55,8 @@ Any site may override the labels through the `sticky_order_labels` filter.
 1. Upload the release zip through Plugins → Add New → Upload Plugin. The zip must contain
    exactly one `sticky-order/` folder with `sticky-order.php` at its root. If you build from
    source, run `php build-zip.php` and upload `dist/sticky-order-<version>.zip`; do not zip
-   the working directory by hand, because it also contains `.git`, `AUDIT.md`, `scripts/`,
-   and `build-zip.php`.
+   the working directory by hand, because it also contains `.git`, `scripts/`, and
+   `build-zip.php`.
 2. Activate "Sticky Order" on the Plugins screen.
 3. Declare groups with `sticky_order_groups`, or leave it empty for single-queue mode.
 4. Reorder the queue on the Sticky Order page. Front-end and REST post lists pick up the
@@ -64,10 +64,10 @@ Any site may override the labels through the `sticky_order_labels` filter.
 
 == Frequently Asked Questions ==
 
-= Does deactivating the plugin lose the saved order? =
+= Will deactivating the plugin lose the saved order? =
 
-No. Deactivation removes the query order and the REST fields, so lists fall back to date
-order; the queue option is kept. Re-activating restores the order. The option is deleted
+No. Deactivation removes the query order and the REST fields, so lists fall back to their
+own order; the queue option is kept. Re-activating restores the order. The option is deleted
 only when the plugin is deleted, via `uninstall.php`.
 
 = What does uninstalling remove? =
@@ -81,16 +81,17 @@ prefix to be included in that sweep.
 = What language is the admin UI in? =
 
 Source strings are English; a Simplified Chinese catalog is bundled in `/languages` and
-loads automatically when the site locale is `zh_CN`. The plugin name and menu label stay
-"Sticky Order" in every locale; other admin strings follow the site locale. On other
-locales the UI is English unless you override it with the `sticky_order_labels` filter.
-Keep the plugin folder and its `languages/` directory together when deploying.
+loads automatically when the site locale is `zh_CN`. Only the plugin name in the Plugins
+list stays "Sticky Order" in every locale; the page title, the menu label, and every other
+admin string follow the site locale. On other locales the UI is English unless you override
+it with the `sticky_order_labels` filter. Keep the plugin folder and its `languages/`
+directory together when deploying.
 
 = How do I set up groups? =
 
 Return a `slug => label` map from the `sticky_order_groups` filter, where each slug matches
 a term slug in the taxonomy from `sticky_order_group_taxonomy` (`category` by default).
-Leave it empty for a single shared queue. A site-specific example lives in this site's
+Leave it empty for a single shared queue. An example configuration lives in
 `wp-content/mu-plugins/sticky-order-config.php`.
 
 = Does my front end need to sort posts? =
@@ -129,7 +130,7 @@ query args or return `false` from `sticky_order_apply_to_query`.
   Parent admin menu. Default `edit.php`.
 
 `sticky_order_labels` (array)
-  Admin UI copy. Missing keys fall back to defaults.
+  Admin UI labels. Missing keys fall back to the defaults.
 
 `sticky_order_apply_to_query` (bool)
   Whether to apply the queue order to a query. Default `true` on front-end and REST lists
@@ -141,13 +142,13 @@ Two read-only fields are added to the post response. They are optional: the REST
 collection order is already the queue order, so a front end can render it directly.
 
 `sticky_order_position` (integer|null)
-  Position in its queue, 0-based. `null` when the post is not queued. In grouped mode
-  this is the position within that group; it is not comparable across groups.
+  Position in its sticky queue, starting at 0. `null` when the post is not queued. In
+  grouped mode this is the position within that group; it is not comparable across groups.
 
 `sticky_order_queue` (string|null)
   Key of the owning queue; `default` in single-queue mode.
 
-Posts that are not stickied return `null` for both fields. Use them only when a custom UI
+Posts that are not sticky return `null` for both fields. Use them only when a custom UI
 needs to know the queue key or position; basic ordering does not require them.
 
 == Storage ==
@@ -159,6 +160,6 @@ Option `sticky_order_queue_map`, for example:
         'section-b' => array( 60, 61 ),
     )
 
-Only IDs that are currently stickied and published are used; everything else is
+Only IDs that are currently sticky and published are used; everything else is
 filtered out at read time.
 

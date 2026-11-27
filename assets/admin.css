@@ -1,4 +1,4 @@
-/* 置顶排序 —— 后台页样式（只在本页加载，类名全部带 sticky-order 前缀）
+/* 置顶排序 —— 后台页样式（只在本页加载，所有类名都带 sticky-order 前缀）
  * 观感跟随 wp-admin 原生：面板用 postbox，列表用 widefat 式分隔线 + 斑马纹，
  * 颜色、链接、占位框都取核心后台的既有值，不引入圆角卡片。 */
 
@@ -76,6 +76,8 @@
 	object-fit: cover;
 }
 
+/* 占位文字允许折行：60px 宽的框放不下 "No featured image" 一行，
+   折成两行后仍在 34px 高度内居中，字号与色值跟随原生列表的弱化文字 */
 .sticky-order-item__thumb-empty {
 	display: flex;
 	align-items: center;
@@ -83,6 +85,8 @@
 	height: 34px;
 	color: #a7aaad;
 	font-size: 10px;
+	line-height: 1.2;
+	text-align: center;
 }
 
 .sticky-order-item__main {

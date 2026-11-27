@@ -1,47 +1,50 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Sticky Order 3.0.0\n"
+"Project-Id-Version: Sticky Order 3.0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-17 00:00+0800\n"
-"PO-Revision-Date: 2026-11-17 00:00+0800\n"
+"POT-Creation-Date: 2026-11-27 11:30+0800\n"
+"PO-Revision-Date: 2026-11-27 11:30+0800\n"
 "Last-Translator: \n"
 "Language-Team: Chinese (Simplified)\n"
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: manual\n"
 
+msgid "Sticky Order"
+msgstr "置顶排序"
+
 msgid "All sticky posts"
 msgstr "所有置顶文章"
 
-msgid "No sticky posts in this group yet. Check \"Sticky\" on a post edit screen and it will appear here automatically."
-msgstr "这个分组还没有置顶文章。在编辑页勾选「置顶」后，它会自动出现在这里。"
+msgid "No sticky posts yet. Check \"Sticky\" in the post editor and the post will appear here automatically."
+msgstr "还没有置顶文章。在文章编辑页勾选「置顶」，文章会自动出现在这里。"
 
-msgid "Drag the handle on the left to reorder; higher means earlier."
-msgstr "拖动左侧手柄调序，越靠上越靠前。"
+msgid "Drag the handle on the left to reorder. Posts at the top come first."
+msgstr "拖动左侧手柄调整顺序，越靠上越靠前。"
 
-msgid "Save changes"
+msgid "Save Changes"
 msgstr "保存更改"
 
 msgid "Order saved."
-msgstr "排序已保存。"
+msgstr "顺序已保存。"
 
 msgid "No featured image"
-msgstr "无封面"
+msgstr "无特色图片"
 
-msgid "These sticky posts do not belong to any group and will not appear in a queue:"
-msgstr "这些置顶文章不属于任何分组，不会出现在队列里："
+msgid "These sticky posts are not in any group and will not appear in any queue:"
+msgstr "这些置顶文章不属于任何分组，也不会出现在任何队列里："
 
 msgid "Assign them a category that matches a group."
-msgstr "给它们指定一个分组对应的分类即可。"
+msgstr "请为这些文章指定与分组对应的分类。"
 
-msgid "You are not allowed to do that."
-msgstr "你没有权限执行此操作。"
+msgid "Sorry, you are not allowed to do that."
+msgstr "抱歉，您不能这么做。"
 
-msgid "Index within its sticky queue (0-based); null when the post is not queued."
-msgstr "在所属置顶队列中的位置（从 0 开始）；文章未入队时为 null。"
+msgid "Position in its sticky queue, starting at 0; null when the post is not queued."
+msgstr "在所属置顶队列中的位置，从 0 开始；文章不在队列中时为 null。"
 
 msgid "Key of the queue the post belongs to; null when the post is not queued."
-msgstr "文章所属队列的 key；文章未入队时为 null。"
+msgstr "文章所属队列的键名；文章不在队列中时为 null。"
