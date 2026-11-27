@@ -161,12 +161,3 @@ Option `sticky_order_queue_map`, for example:
 Only IDs that are currently stickied and published are used; everything else is
 filtered out at read time.
 
-== Changelog ==
-
-= 3.0.0 =
-* Renamed to "Sticky Order" with a rewritten plugin description and GitHub project links.
-* Applies the saved queue to front-end and REST post lists before pagination; the REST
-  fields remain available but are no longer required for ordering.
-* Added a distribution build script (`.distignore` + `build-zip.php`) that ships exactly one
-  plugin header, and made `uninstall.php` remove the queue option on every multisite site.
-* Ships English source strings plus a Simplified Chinese catalog only.
