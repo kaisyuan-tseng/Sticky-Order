@@ -19,16 +19,14 @@ PO_PATH = os.path.join(LANG_DIR, "sticky-order-zh_CN.po")
 
 # Keep the POT header version in sync with the plugin header / readme stable tag.
 PROJECT_NAME = "Sticky Order"
-PROJECT_VERSION = "3.2.1"
+PROJECT_VERSION = "3.2.2"
 DOMAIN = "sticky-order"
 POT_PLURAL_FORMS = "nplurals=2; plural=(n != 1);"
 
 ENTRY_RE = re.compile(
-    r'(?:#\.[^\n]*\n)*'                     # extractor comments (skipped)
-    r'(?:#: [^\n]*\n)*'                     # references (skipped)
-    r'(?:msgid ""\n(?:(?:"[^\n]*"\n)+)\n?)' # header block handled separately
-    r'|(?:msgid (?P<msgid>"(?:[^"\\]|\\.)*"\n(?:\s*"(?:[^"\\]|\\.)*"\n)*)\n?'
-    r'msgstr (?P<msgstr>"(?:[^"\\]|\\.)*"\n(?:\s*"(?:[^"\\]|\\.)*"\n)*))',
+    r'(?:(?:msgctxt (?P<msgctxt>"(?:[^"\\]|\\.)*"(?:\n\s*"(?:[^"\\]|\\.)*")*)\n)?'
+    r'msgid (?P<msgid>"(?:[^"\\]|\\.)*"(?:\n\s*"(?:[^"\\]|\\.)*")*)\n'
+    r'msgstr (?P<msgstr>"(?:[^"\\]|\\.)*"(?:\n\s*"(?:[^"\\]|\\.)*")*))',
     re.M,
 )
 
@@ -44,12 +42,13 @@ def parse_po(text: str):
     header = None
     entries = []
     for m in ENTRY_RE.finditer(text):
+        msgctxt = unquote(m.group("msgctxt") or "")
         msgid = unquote(m.group("msgid") or "")
         msgstr = unquote(m.group("msgstr") or "")
-        if msgid == "" and header is None:
+        if msgid == "" and not msgctxt and header is None:
             header = msgstr
             continue
-        entries.append((msgid, msgstr))
+        entries.append((msgctxt, msgid, msgstr))
     return header, entries
 
 
@@ -74,8 +73,12 @@ def write_pot(header: str, entries) -> None:
         f'"Plural-Forms: {POT_PLURAL_FORMS}\\n"\n'
         '"X-Generator: manual\\n"\n'
     ]
-    for msgid, _ in entries:
-        out.append(f'\nmsgid "{po_quote(msgid)}"\nmsgstr ""\n')
+    for msgctxt, msgid, _ in entries:
+        if msgctxt:
+            out.append(f'\nmsgctxt "{po_quote(msgctxt)}"\n')
+        else:
+            out.append("\n")
+        out.append(f'msgid "{po_quote(msgid)}"\nmsgstr ""\n')
     with open(os.path.join(LANG_DIR, f"{DOMAIN}.pot"), "w", encoding="utf-8") as fh:
         fh.write("".join(out))
 
@@ -101,10 +104,15 @@ def write_mo(header: str, entries) -> None:
     # The MO spec requires the original strings table to be sorted, and an entry
     # with an empty msgstr would make WordPress print an empty string instead of
     # falling back to the msgid. Skip those; msgfmt behaves the same way.
-    for msgid, msgstr in sorted(entries):
+    # Contextual entries use the gettext key "context\x04msgid".
+    def mo_key(entry) -> str:
+        msgctxt, msgid, _ = entry
+        return f"{msgctxt}\x04{msgid}" if msgctxt else msgid
+
+    for msgctxt, msgid, msgstr in sorted(entries, key=mo_key):
         if not msgstr:
             continue
-        keys.append(msgid.encode("utf-8"))
+        keys.append(mo_key((msgctxt, msgid, msgstr)).encode("utf-8"))
         vals.append(msgstr.encode("utf-8"))
 
     n = len(keys)

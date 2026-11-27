@@ -3,7 +3,7 @@
  * Plugin Name: Sticky Order
  * Plugin URI: https://github.com/kaisyuan-tseng/Sticky-Order
  * Description: Turn sticky posts into an ordered queue. The WordPress sticky flag still decides which posts are sticky; Sticky Order decides their order, independent of publish dates. Reorder by drag and drop under Posts; queues follow your existing categories automatically, and front-end and REST post lists use the saved order - no backdating, no theme changes.
- * Version: 3.2.1
+ * Version: 3.2.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: kaisyuan-tseng
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'STICKY_ORDER_VERSION' ) ) {
-	define( 'STICKY_ORDER_VERSION', '3.2.1' );
+	define( 'STICKY_ORDER_VERSION', '3.2.2' );
 }
 if ( ! defined( 'STICKY_ORDER_DIR' ) ) {
 	define( 'STICKY_ORDER_DIR', plugin_dir_path( __FILE__ ) );
@@ -150,7 +150,8 @@ function sticky_order_menu_parent() {
  * 后台界面文案。
  *
  * 默认值大部分是英文 msgid，经 `sticky-order` 文本域翻译（/languages 内置 zh_CN）。
- * 插件列表里的插件名始终是英文；页面标题与菜单名属于界面文案，跟随站点语言。
+ * 插件列表里的插件名始终是英文；页面标题与菜单名用独立的 `_x` 上下文翻译，
+ * 因此不会连带翻译插件名。其他界面文案跟随站点语言。
  * 站点可通过 `sticky_order_labels` 过滤器覆盖任意键：过滤器收到默认值，
  * 缺键时回退到默认值。
  *
@@ -158,8 +159,8 @@ function sticky_order_menu_parent() {
  */
 function sticky_order_labels() {
 	$defaults = array(
-		'page_title'    => __( 'Sticky Order', 'sticky-order' ),
-		'menu_title'    => __( 'Sticky Order', 'sticky-order' ),
+		'page_title'    => _x( 'Sticky Order', 'admin menu and page title', 'sticky-order' ),
+		'menu_title'    => _x( 'Sticky Order', 'admin menu and page title', 'sticky-order' ),
 		'single_title'  => __( 'All sticky posts', 'sticky-order' ),
 		'empty_group'   => __( 'No sticky posts yet. Check "Sticky" in the post editor and the post will appear here automatically.', 'sticky-order' ),
 		'drag_hint'     => __( 'Drag the handle on the left to reorder. Posts at the top come first.', 'sticky-order' ),
