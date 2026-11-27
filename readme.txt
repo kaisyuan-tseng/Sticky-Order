@@ -81,9 +81,10 @@ prefix to be included in that sweep.
 = What language is the admin UI in? =
 
 Source strings are English; a Simplified Chinese catalog is bundled in `/languages` and
-loads automatically when the site locale is `zh_CN`. On other locales the UI is English
-unless you override it with the `sticky_order_labels` filter. Keep the plugin folder and
-its `languages/` directory together when deploying.
+loads automatically when the site locale is `zh_CN`. The plugin name and menu label stay
+"Sticky Order" in every locale; other admin strings follow the site locale. On other
+locales the UI is English unless you override it with the `sticky_order_labels` filter.
+Keep the plugin folder and its `languages/` directory together when deploying.
 
 = How do I set up groups? =
 

@@ -7,9 +7,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: manual\n"
 
-msgid "Sticky Order"
-msgstr ""
-
 msgid "All sticky posts"
 msgstr ""
 

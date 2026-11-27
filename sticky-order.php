@@ -113,17 +113,18 @@ function sticky_order_menu_parent() {
 /**
  * Admin UI labels.
  *
- * Defaults are English msgids translated through the `sticky-order` text domain
- * (zh_CN is bundled in /languages). Sites may override any or all keys through
- * the `sticky_order_labels` filter; the filter receives the already-translated
+ * Defaults are English strings; most are msgids translated through the
+ * `sticky-order` text domain (zh_CN is bundled in /languages). The plugin name
+ * and menu label stay English in every locale. Sites may override any or all
+ * keys through the `sticky_order_labels` filter; the filter receives the
  * defaults, and missing keys fall back to them.
  *
  * @return array<string,string>
  */
 function sticky_order_labels() {
 	$defaults = array(
-		'page_title'    => __( 'Sticky Order', 'sticky-order' ),
-		'menu_title'    => __( 'Sticky Order', 'sticky-order' ),
+		'page_title'    => 'Sticky Order',
+		'menu_title'    => 'Sticky Order',
 		'single_title'  => __( 'All sticky posts', 'sticky-order' ),
 		'empty_group'   => __( 'No sticky posts in this group yet. Check "Sticky" on a post edit screen and it will appear here automatically.', 'sticky-order' ),
 		'drag_hint'     => __( 'Drag the handle on the left to reorder; higher means earlier.', 'sticky-order' ),

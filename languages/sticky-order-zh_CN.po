@@ -13,11 +13,8 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: manual\n"
 
-msgid "Sticky Order"
-msgstr "置顶排序"
-
 msgid "All sticky posts"
-msgstr "全部置顶文章"
+msgstr "所有置顶文章"
 
 msgid "No sticky posts in this group yet. Check \"Sticky\" on a post edit screen and it will appear here automatically."
 msgstr "这个分组还没有置顶文章。在编辑页勾选「置顶」后，它会自动出现在这里。"
