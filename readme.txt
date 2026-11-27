@@ -4,7 +4,7 @@ Tags: sticky, order, queue, rest, headless
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.0.2
+Stable tag: 3.0.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,10 +81,11 @@ prefix to be included in that sweep.
 = What language is the admin UI in? =
 
 Source strings are English; a Simplified Chinese catalog is bundled in `/languages` and
-loads automatically when the site locale is `zh_CN`. The plugin name, page title, and menu
-label stay "Sticky Order" in every locale; other admin strings follow the site locale. On
-other locales the UI is English unless you override it with the `sticky_order_labels`
-filter. Keep the plugin folder and its `languages/` directory together when deploying.
+loads automatically when the site locale is `zh_CN`. Only the plugin name in the Plugins
+list stays "Sticky Order" in every locale; the page title, the menu label, and every other
+admin string follow the site locale. On other locales the UI is English unless you override
+it with the `sticky_order_labels` filter. Keep the plugin folder and its `languages/`
+directory together when deploying.
 
 = How do I set up groups? =
 
