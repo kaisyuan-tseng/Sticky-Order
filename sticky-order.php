@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Sticky Order
  * Plugin URI: https://github.com/kaisyuan-tseng/Sticky-Order
- * Description: Turn sticky posts into an ordered queue. The WordPress sticky flag still decides which posts are sticky; Sticky Order decides their order, independent of publish dates. Reorder by drag and drop under Posts, optionally split into one queue per group, and let front-end and REST post lists use the saved order automatically - no backdating, no theme changes.
- * Version: 3.0.3
+ * Description: Turn sticky posts into an ordered queue. The WordPress sticky flag still decides which posts are sticky; Sticky Order decides their order, independent of publish dates. Reorder by drag and drop under Posts; queues follow your existing categories automatically, and front-end and REST post lists use the saved order - no backdating, no theme changes.
+ * Version: 3.1.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: kaisyuan-tseng
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'STICKY_ORDER_VERSION' ) ) {
-	define( 'STICKY_ORDER_VERSION', '3.0.3' );
+	define( 'STICKY_ORDER_VERSION', '3.1.0' );
 }
 if ( ! defined( 'STICKY_ORDER_DIR' ) ) {
 	define( 'STICKY_ORDER_DIR', plugin_dir_path( __FILE__ ) );
@@ -50,13 +50,50 @@ add_action(
 /* ------------------------------------------------------------------ 公共 API */
 
 /**
+ * 默认分组：读取当前 taxonomy 的分类，分类名作为标题，slug 作为队列键。
+ *
+ * 不写死分类；空分类也保留（方便先建分类再置顶文章），只跳过空的
+ * Uncategorized 系统术语，避免默认分类占掉一个空队列。没有分类时返回
+ * 空数组，插件退化为单队列。
+ *
+ * @return array<string,string>
+ */
+function sticky_order_default_groups() {
+	$terms = get_terms(
+		array(
+			'taxonomy'   => sticky_order_group_taxonomy(),
+			'hide_empty' => false,
+			'orderby'    => 'term_id',
+			'order'      => 'ASC',
+		)
+	);
+
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return array();
+	}
+
+	$groups = array();
+	foreach ( $terms as $term ) {
+		if ( 0 === (int) $term->count && 0 === strpos( $term->slug, 'uncategorized' ) ) {
+			continue;
+		}
+
+		$groups[ $term->slug ] = $term->name;
+	}
+
+	return $groups;
+}
+
+/**
  * 分组清单：array( group_slug => 显示名 )。
  *
- * 返回空数组时插件退化成「单队列」模式 —— 所有置顶文章共用一条队列，
- * 后台只显示一个队列区块，REST 的 sticky_order_position 是全局序号。
+ * 默认按 `sticky_order_group_taxonomy()` 的现有分类自动分组；站点可通过
+ * `sticky_order_groups` 覆盖，返回空数组时退化为单队列 —— 所有置顶文章
+ * 共用一条队列，后台只显示一个队列区块，REST 的 sticky_order_position
+ * 是全局序号。
  */
 function sticky_order_groups() {
-	$groups = (array) apply_filters( 'sticky_order_groups', array() );
+	$groups = (array) apply_filters( 'sticky_order_groups', sticky_order_default_groups() );
 
 	$normalized = array();
 	foreach ( $groups as $slug => $label ) {

@@ -4,13 +4,13 @@ Tags: sticky, order, queue, rest, headless
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.0.3
+Stable tag: 3.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Turn sticky posts into an ordered queue. The WordPress sticky flag decides which posts are
-sticky; Sticky Order decides their order, independent of publish dates. Front-end and REST
-post lists use the saved order automatically.
+sticky; Sticky Order decides their order, independent of publish dates. Queues follow your
+categories automatically, and front-end and REST post lists use the saved order.
 
 == Description ==
 
@@ -30,8 +30,9 @@ original order. Ordering happens in SQL before the page limit, so pagination,
 
 What it actually does:
 
-* Groups queues by any taxonomy, one independent queue per group. With no groups
-  configured, all sticky posts share a single queue.
+* Splits queues by any taxonomy, one independent queue per group. Groups are the site's
+  existing categories by default; override `sticky_order_groups` to customize, or return
+  an empty array for one shared queue.
 * Pins queued sticky posts to the top of front-end and REST post lists, before pagination.
   Admin list tables are not reordered.
 * Exposes two read-only REST fields, `sticky_order_position` and `sticky_order_queue`, for
@@ -58,7 +59,8 @@ Any site may override the labels through the `sticky_order_labels` filter.
    the working directory by hand, because it also contains `.git`, `scripts/`, and
    `build-zip.php`.
 2. Activate "Sticky Order" on the Plugins screen.
-3. Declare groups with `sticky_order_groups`, or leave it empty for single-queue mode.
+3. Groups are auto-detected from your categories. Override `sticky_order_groups` to
+   customize, or return an empty array for single-queue mode.
 4. Reorder the queue on the Sticky Order page. Front-end and REST post lists pick up the
    order automatically; rebuild static output after reordering.
 
@@ -89,9 +91,11 @@ directory together when deploying.
 
 = How do I set up groups? =
 
-Return a `slug => label` map from the `sticky_order_groups` filter, where each slug matches
-a term slug in the taxonomy from `sticky_order_group_taxonomy` (`category` by default).
-Leave it empty for a single shared queue. An example configuration lives in
+By default, groups are the site's existing terms in the taxonomy from
+`sticky_order_group_taxonomy` (`category` by default), so a normal WordPress install works
+without configuration. Empty categories are shown; empty Uncategorized system terms are
+skipped. To override, return a `slug => label` map from the `sticky_order_groups` filter.
+Return an empty array for a single shared queue. An example override lives in
 `wp-content/mu-plugins/sticky-order-config.php`.
 
 = Does my front end need to sort posts? =
@@ -112,7 +116,8 @@ query args or return `false` from `sticky_order_apply_to_query`.
 == Hooks ==
 
 `sticky_order_groups` (array)
-  Group map `array( slug => label )`; slugs match term slugs. Empty = single-queue mode.
+  Group map `array( slug => label )`; slugs match term slugs. Default is the current
+  taxonomy's terms, auto-detected. Return an empty array for single-queue mode.
 
 `sticky_order_group_taxonomy` (string)
   Taxonomy used for grouping. Default `category`.

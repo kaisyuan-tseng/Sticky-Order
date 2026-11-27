@@ -21,6 +21,9 @@
 
 - **成员**仍由 WordPress 原生 sticky 决定：文章编辑页勾选「置顶」。
 - **顺序**由后台「置顶排序」页面拖拽保存。
+- **分组**默认按 `sticky_order_group_taxonomy()`（默认 `category`）的现有分类自动生成：
+  分类名作为后台标题，slug 作为队列键；空分类也显示，空的 Uncategorized 系统术语跳过。
+  可用 `sticky_order_groups` 覆盖，返回空数组即单队列。
 - **应用范围**：前台 `WP_Query` 列表 + REST 文章集合。
 - **结果**：队列内的置顶文章按保存顺序排在最前；其余文章保持原查询顺序；不属于任何分组的置顶文章（下文简称「未归组置顶」）排在队尾。
 - **分组顺序**：未过滤的列表按后台分组顺序排列置顶文章，组内再按队列顺序；前端按 `sticky_order_queue` 过滤即可得到单条队列的顺序。
@@ -235,9 +238,10 @@ Sticky_Order_Queue::ordered_ids();               // 置顶 ID 的完整顺序
 
 ## 10. 本站映射
 
-当前站点在 `wp-content/mu-plugins/sticky-order-config.php` 里自动从 WordPress 分类生成队列：
-分类名作为后台分组的标题，按分类创建顺序排列；空分类也会显示（方便先建分类再置顶文章），
-只跳过空的 Uncategorized 系统术语。新增分类会自动出现在后台。
+插件默认按 WordPress 分类自动生成队列：分类名作为后台分组的标题，按分类创建顺序排列；
+空分类也会显示（方便先建分类再置顶文章），只跳过空的 Uncategorized 系统术语。新增分类会
+自动出现在后台，不需要改插件代码。本站的 `wp-content/mu-plugins/sticky-order-config.php`
+保留为站点级覆盖示例；删除它也不会退回写死分组。
 
 前端按当前分类 slug 与前台栏目对应：
 

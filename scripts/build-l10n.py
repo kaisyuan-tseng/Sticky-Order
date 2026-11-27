@@ -19,7 +19,7 @@ PO_PATH = os.path.join(LANG_DIR, "sticky-order-zh_CN.po")
 
 # Keep the POT header version in sync with the plugin header / readme stable tag.
 PROJECT_NAME = "Sticky Order"
-PROJECT_VERSION = "3.0.3"
+PROJECT_VERSION = "3.1.0"
 DOMAIN = "sticky-order"
 POT_PLURAL_FORMS = "nplurals=2; plural=(n != 1);"
 
