@@ -71,6 +71,7 @@ class Sticky_Order_Queue {
 				'ignore_sticky_posts' => true,
 				'orderby'             => 'date',
 				'order'               => 'DESC',
+				'sticky_order_skip'   => true,
 			)
 		);
 
@@ -175,6 +176,31 @@ class Sticky_Order_Queue {
 		}
 
 		return $orphans;
+	}
+
+	/**
+	 * 查询层使用的置顶 ID 顺序：先按队列顺序，再补上不属于任何队列的孤儿。
+	 *
+	 * 孤儿（置顶但没有命中分组）没有队列位置，统一排在队尾，
+	 * 这样既不会丢失核心 sticky 的置顶语义，也不会插进任何分组队首。
+	 *
+	 * @return int[]
+	 */
+	public static function ordered_ids() {
+		$data = self::resolve();
+		$ids  = array();
+
+		foreach ( $data['queues'] as $queue ) {
+			foreach ( $queue as $id ) {
+				$ids[] = (int) $id;
+			}
+		}
+
+		foreach ( self::orphans() as $id ) {
+			$ids[] = (int) $id;
+		}
+
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**

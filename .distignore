@@ -1,0 +1,27 @@
+# Files and directories excluded from the distribution zip.
+#
+# Read by build-zip.php and by WP-CLI's `wp dist-archive`. One pattern per line;
+# a bare name matches that entry at the plugin root, `*` globs within a name.
+
+# VCS and editor noise
+.git
+.gitignore
+.github
+.distignore
+*~
+*.swp
+*.log
+
+# Toolchain — needed to work on the plugin, never to run it
+build-zip.php
+scripts
+__pycache__
+*.py
+dist
+
+# Local-only audit notes
+AUDIT.md
+
+# Build artifacts
+*.zip
+*.tar.gz

@@ -2,11 +2,6 @@
  * 观感跟随 wp-admin 原生：面板用 postbox，列表用 widefat 式分隔线 + 斑马纹，
  * 颜色、链接、占位框都取核心后台的既有值，不引入圆角卡片。 */
 
-.sticky-order__intro {
-	max-width: 760px;
-	color: #646970;
-}
-
 .sticky-order-lane {
 	max-width: 760px;
 	margin: 16px 0 0;

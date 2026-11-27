@@ -1,11 +1,13 @@
 <?php
 /**
- * Plugin Name: Sticky Post Order
- * Description: Turns sticky posts into ordered queues. Sticky decides which posts are included; this plugin decides their order, independent of publish dates — no need to backdate a post just to promote it. Sort by drag and drop from the admin page under Posts, optionally grouped by any taxonomy (or use one shared queue). Exposes the read-only REST fields sticky_order_position and sticky_order_queue for headless front ends. Newly stickied posts append to the tail; unstickied or unpublished posts drop out automatically. No core, theme, or date changes.
- * Version: 2.0.0
+ * Plugin Name: Sticky Order
+ * Plugin URI: https://github.com/kaisyuan-tseng/Sticky-Order
+ * Description: Turn sticky posts into an ordered queue. WordPress sticky still decides which posts are pinned; Sticky Order decides their order, independent of publish dates. Reorder by drag and drop under Posts, optionally grouped by taxonomy, and let front-end and REST post lists use the saved order automatically — no backdating, no theme changes.
+ * Version: 3.0.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: kaisyuan-tseng
+ * Author URI: https://github.com/kaisyuan-tseng
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: sticky-order
@@ -24,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'STICKY_ORDER_VERSION' ) ) {
-	define( 'STICKY_ORDER_VERSION', '2.0.0' );
+	define( 'STICKY_ORDER_VERSION', '3.0.0' );
 }
 if ( ! defined( 'STICKY_ORDER_DIR' ) ) {
 	define( 'STICKY_ORDER_DIR', plugin_dir_path( __FILE__ ) );
@@ -123,7 +125,6 @@ function sticky_order_labels() {
 		'page_title'    => __( 'Sticky Order', 'sticky-order' ),
 		'menu_title'    => __( 'Sticky Order', 'sticky-order' ),
 		'single_title'  => __( 'All sticky posts', 'sticky-order' ),
-		'intro'         => __( 'This order only affects where the front end reads the sticky queue; the posts list, related posts and publish dates are unchanged. To add a post to the queue, check "Sticky" on its edit screen.', 'sticky-order' ),
 		'empty_group'   => __( 'No sticky posts in this group yet. Check "Sticky" on a post edit screen and it will appear here automatically.', 'sticky-order' ),
 		'drag_hint'     => __( 'Drag the handle on the left to reorder; higher means earlier.', 'sticky-order' ),
 		'save'          => __( 'Save changes', 'sticky-order' ),
@@ -140,8 +141,10 @@ function sticky_order_labels() {
 /* ------------------------------------------------------------------- 启动 */
 
 require_once STICKY_ORDER_DIR . 'includes/class-sticky-order-queue.php';
+require_once STICKY_ORDER_DIR . 'includes/class-sticky-order-query.php';
 require_once STICKY_ORDER_DIR . 'includes/class-sticky-order-rest.php';
 require_once STICKY_ORDER_DIR . 'includes/class-sticky-order-admin.php';
 
+Sticky_Order_Query::init();
 Sticky_Order_REST::init();
 Sticky_Order_Admin::init();

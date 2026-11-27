@@ -112,7 +112,7 @@ class Sticky_Order_Admin {
 	private static function item( $id, $group, $post, $labels ) {
 		$thumb  = get_the_post_thumbnail_url( $id, 'thumbnail' );
 		$edit   = get_edit_post_link( $id );
-		$date   = get_the_date( (string) get_option( 'date_format' ), $post );
+		$date   = get_the_date( (string) get_option( 'date_format' ), $post ) . ' ' . get_the_time( (string) get_option( 'time_format' ), $post );
 		$author = get_the_author_meta( 'display_name', (int) $post->post_author );
 		?>
 		<li class="sticky-order-item" data-id="<?php echo esc_attr( (string) $id ); ?>">
@@ -166,8 +166,6 @@ class Sticky_Order_Admin {
 			<?php if ( isset( $_GET['updated'] ) ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php echo esc_html( $labels['saved'] ); ?></p></div>
 			<?php endif; ?>
-
-			<p class="description sticky-order__intro"><?php echo wp_kses_post( $labels['intro'] ); ?></p>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="sticky_order_save">

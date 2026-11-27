@@ -18,8 +18,8 @@ LANG_DIR = os.path.normpath(os.path.join(HERE, "..", "languages"))
 PO_PATH = os.path.join(LANG_DIR, "sticky-order-zh_CN.po")
 
 # Keep the POT header version in sync with the plugin header / readme stable tag.
-PROJECT_NAME = "Sticky Post Order"
-PROJECT_VERSION = "2.0.0"
+PROJECT_NAME = "Sticky Order"
+PROJECT_VERSION = "3.0.0"
 DOMAIN = "sticky-order"
 POT_PLURAL_FORMS = "nplurals=2; plural=(n != 1);"
 
