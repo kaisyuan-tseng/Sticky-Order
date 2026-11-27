@@ -60,7 +60,7 @@ class Sticky_Order_Query {
 			return $orderby;
 		}
 
-		$ids = Sticky_Order_Queue::ordered_ids();
+		$ids = Sticky_Order_Queue::ordered_ids_for_query( $query );
 		if ( ! $ids ) {
 			return $orderby;
 		}

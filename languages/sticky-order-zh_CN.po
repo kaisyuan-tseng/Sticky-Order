@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Sticky Order 3.1.0\n"
+"Project-Id-Version: Sticky Order 3.2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -43,8 +43,11 @@ msgstr "请为这些文章指定与分组对应的分类。"
 msgid "Sorry, you are not allowed to do that."
 msgstr "抱歉，您不能这么做。"
 
-msgid "Position in its sticky queue, starting at 0; null when the post is not queued."
-msgstr "在所属置顶队列中的位置，从 0 开始；文章不在队列中时为 null。"
+msgid "Position in its primary sticky queue, starting at 0; null when the post is not queued."
+msgstr "在主置顶队列中的位置，从 0 开始；文章不在队列中时为 null。"
 
-msgid "Key of the queue the post belongs to; null when the post is not queued."
-msgstr "文章所属队列的键名；文章不在队列中时为 null。"
+msgid "Key of the primary queue the post belongs to; null when the post is not queued."
+msgstr "文章所属的主队列键名；文章不在队列中时为 null。"
+
+msgid "All queue positions for the post, keyed by queue; null when the post is not queued."
+msgstr "文章在所有队列中的位置映射，键名是队列；文章不在队列中时为 null。"

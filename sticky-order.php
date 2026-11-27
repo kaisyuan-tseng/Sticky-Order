@@ -3,7 +3,7 @@
  * Plugin Name: Sticky Order
  * Plugin URI: https://github.com/kaisyuan-tseng/Sticky-Order
  * Description: Turn sticky posts into an ordered queue. The WordPress sticky flag still decides which posts are sticky; Sticky Order decides their order, independent of publish dates. Reorder by drag and drop under Posts; queues follow your existing categories automatically, and front-end and REST post lists use the saved order - no backdating, no theme changes.
- * Version: 3.1.0
+ * Version: 3.2.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: kaisyuan-tseng
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'STICKY_ORDER_VERSION' ) ) {
-	define( 'STICKY_ORDER_VERSION', '3.1.0' );
+	define( 'STICKY_ORDER_VERSION', '3.2.0' );
 }
 if ( ! defined( 'STICKY_ORDER_DIR' ) ) {
 	define( 'STICKY_ORDER_DIR', plugin_dir_path( __FILE__ ) );

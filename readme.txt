@@ -4,7 +4,7 @@ Tags: sticky, order, queue, rest, headless
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.1.0
+Stable tag: 3.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,12 +32,13 @@ What it actually does:
 
 * Splits queues by any taxonomy, one independent queue per group. Groups are the site's
   existing categories by default; override `sticky_order_groups` to customize, or return
-  an empty array for one shared queue.
+  an empty array for one shared queue. A post in several groups appears in each queue with
+  its own position.
 * Pins queued sticky posts to the top of front-end and REST post lists, before pagination.
   Admin list tables are not reordered.
-* Exposes two read-only REST fields, `sticky_order_position` and `sticky_order_queue`, for
-  custom front ends. They are optional: the REST collection order is already the queue
-  order.
+* Exposes three read-only REST fields: `sticky_order_position`, `sticky_order_queue`,
+  and `sticky_order_positions`, for custom front ends. They are optional: the REST
+  collection order is already the queue order.
 * Appends newly stickied posts to the tail in reverse-date order; they never jump ahead.
 * Drops posts automatically when they are unstickied or unpublished. No stale IDs to clean.
 * Lists sticky posts that match no group at the bottom of the admin page, so a post
@@ -98,6 +99,14 @@ skipped. To override, return a `slug => label` map from the `sticky_order_groups
 Return an empty array for a single shared queue. An example override lives in
 `wp-content/mu-plugins/sticky-order-config.php`.
 
+= Can a post belong to more than one queue? =
+
+Yes. If a post is in multiple group categories, it appears in each category's queue with
+its own independent position. The single-value fields report the primary queue (the first
+group in group order); use `sticky_order_positions` for all positions. Single-category
+queries use that category's queue; unfiltered or multi-category queries use the primary
+queue order.
+
 = Does my front end need to sort posts? =
 
 No. The queue is applied to front-end and REST post lists before pagination, so a front
@@ -143,18 +152,23 @@ query args or return `false` from `sticky_order_apply_to_query`.
 
 == REST ==
 
-Two read-only fields are added to the post response. They are optional: the REST
+Three read-only fields are added to the post response. They are optional: the REST
 collection order is already the queue order, so a front end can render it directly.
 
 `sticky_order_position` (integer|null)
-  Position in its sticky queue, starting at 0. `null` when the post is not queued. In
-  grouped mode this is the position within that group; it is not comparable across groups.
+  Position in its primary sticky queue, starting at 0. `null` when the post is not queued.
+  In grouped mode this is the position in the primary group; it is not comparable across
+  groups.
 
 `sticky_order_queue` (string|null)
-  Key of the owning queue; `default` in single-queue mode.
+  Key of the primary queue; `default` in single-queue mode.
 
-Posts that are not sticky return `null` for both fields. Use them only when a custom UI
-needs to know the queue key or position; basic ordering does not require them.
+`sticky_order_positions` (object|null)
+  All queue positions for the post, keyed by queue, for example
+  `{ "guides": 1, "applications": 3 }`. `null` when the post is not queued.
+
+Posts that are not sticky return `null` for all three fields. Use them only when a custom
+UI needs to know queue keys or positions; basic ordering does not require them.
 
 == Storage ==
 

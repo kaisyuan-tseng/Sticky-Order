@@ -11,9 +11,28 @@
 | 按接口返回顺序渲染 | 不需要额外排序；队列已经生效 |
 | 删除前端已有的 sticky/featured 排序 | 如果前端按日期或自己的字段重排，会覆盖服务端顺序 |
 | 静态站/ISR 做缓存失效 | 保存顺序后触发重新验证或重建（见 §6） |
-| 可选：读两个字段 | 只有需要队列键名或位置的自定义 UI 才需要（见 §4） |
+| 可选：读字段 | 只有需要队列键名或位置的自定义 UI 才需要（见 §4） |
 
 **不需要**：新端点、新的请求参数、新的查询参数、额外的 REST 请求、前端排序库。
+
+---
+
+## 1.1 后台用法（快速开始）
+
+1. 安装并启用 Sticky Order；默认按站点现有分类自动分组，新分类会自动出现。
+2. 在文章编辑页勾选「置顶」。
+3. 打开 **文章 → 置顶排序**；每个分类一栏，空分类也会显示。
+4. 拖拽手柄调整每栏顺序，点 **保存更改**。
+5. 前台 `WP_Query` 和 REST 文章列表自动按队列顺序返回；前端不需要再排序。
+6. 空的 Uncategorized 系统术语会跳过；有文章的分类正常显示。
+
+### 一篇文章属于多个分类
+
+- 文章会出现在它所属的**每个分组分类栏**里，每条队列独立保存位置。
+- 可以在不同分类栏把它拖到不同位置，互不影响。
+- 旧的单值字段 `sticky_order_position` / `sticky_order_queue` 返回**主队列**（分组顺序里第一个命中的分类）。
+- 新增的 `sticky_order_positions` 返回全部位置，例如 `{"guides":1,"applications":2}`。
+- 单分类查询使用该分类自己的队列；未过滤或多分类查询使用主队列的全局顺序。
 
 ---
 
@@ -54,10 +73,10 @@ GET /wp-json/wp/v2/posts?categories=123&per_page=12
 用 `_fields` 裁剪响应时：
 
 - 不需要字段：`_fields=id,slug,title` 即可，顺序不受影响。
-- 需要字段：把两个字段列进去，例如：
+- 需要字段：把需要的字段列进去，例如：
 
 ```text
-_fields=id,slug,title,date,sticky_order_position,sticky_order_queue
+_fields=id,slug,title,date,sticky_order_position,sticky_order_queue,sticky_order_positions
 ```
 
 ### 3.2 `_embed`
@@ -79,18 +98,20 @@ REST 字段和队列顺序只对 `sticky_order_post_types` 返回的类型生效
 
 ---
 
-## 4. 两个可选字段
+## 4. 三个可选字段
 
 | 字段 | 类型 | 含义 |
 |---|---|---|
-| `sticky_order_position` | `number \| null` | 队列内位置，从 0 开始；不在队列为 `null` |
-| `sticky_order_queue` | `string \| null` | 所属队列的键名；单队列模式为 `default` |
+| `sticky_order_position` | `number \| null` | 主队列内位置，从 0 开始；不在队列为 `null` |
+| `sticky_order_queue` | `string \| null` | 主队列的键名；单队列模式为 `default` |
+| `sticky_order_positions` | `object \| null` | 所有队列的位置映射，例如 `{"guides":1,"applications":2}` |
 
 使用规则：
 
 - `null` 表示未置顶、未发布或不属于任何分组，**不要当成 0**。
 - position 只在同一个 queue 内有意义，不能跨 queue 比较。
-- 一篇文章只进一条队列：插件取它第一个命中分组的分类；多分类文章请按 `sticky_order_queue` 过滤，不要只按分类过滤。
+- 一篇文章可以属于多条队列（多个分组分类）；`sticky_order_position` / `queue` 只是主队列，完整位置用 `sticky_order_positions`。
+- 单分类查询按该分类自己的队列排序；未过滤或多分类查询按主队列的全局顺序，同一篇文章只出现一次。
 - 未归组置顶（置顶但不属于任何分组）：字段为 `null`，服务端会把它排在队列文章之后；如果前端过滤 `queue !== null`，它不会出现在队列列表里，这是预期行为。
 - 字段只读；顺序仍只能在 WP 后台调整。
 
@@ -213,7 +234,7 @@ Sticky_Order_Queue::ordered_ids();               // 置顶 ID 的完整顺序
 - **从 `_embedded` 读字段**：可能读不到，直接请求文章列表。
 - **把 `sticky_order_position` 当全局排名**：它是每个 queue 内的位置。
 - **把 `null` 当 0**：不在队列中的文章会被错误地排到最前。
-- **只按分类过滤**：多分类文章可能属于另一条队列；按 `sticky_order_queue` 过滤。
+- **把 `sticky_order_queue` 当唯一归属**：多分类文章可能有多个位置；完整位置读 `sticky_order_positions`，按分类列表查询时直接用分类过滤即可。
 - **每页单独排序**：队列顺序跨页连续，按返回顺序拼接即可。
 - **依赖 REST 的 `ignore_sticky` 参数控制队列**：插件会在支持的类型上统一应用队列；要退出用 `sticky_order_apply_to_query` 或 `sticky_order_skip`。
 - **后台/`get_posts()`/admin-ajax 没生效**：这些默认不重排；前端走 REST 即可。
@@ -232,7 +253,8 @@ Sticky_Order_Queue::ordered_ids();               // 置顶 ID 的完整顺序
 - [ ] 后台保存新顺序后，前端缓存/构建产物已重新验证
 - [ ] WordPress 后台文章列表保持原生顺序
 - [ ] `get_posts()` 调用保持原生顺序（如果前端/主题用到）
-- [ ] 多分类置顶文章按 `sticky_order_queue` 过滤时只出现在它被分配的那条队列
+- [ ] 多分类置顶文章在每个分类查询里按该分类自己的队列顺序出现
+- [ ] 多分类置顶文章的 `sticky_order_positions` 返回全部队列位置
 
 ---
 

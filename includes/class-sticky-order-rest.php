@@ -6,8 +6,9 @@
  * 未置顶（或不在队列里）为 null，前端据此回退到「按日期」。
  *
  * 字段：
- *   sticky_order_position  队列内的位置，0 起；不在队列里为 null
- *   sticky_order_queue     所属队列的 key（单队列模式下是 default）；不在队列里为 null
+ *   sticky_order_position    主队列内的位置，0 起；不在队列里为 null
+ *   sticky_order_queue       主队列的 key（单队列模式下是 default）；不在队列里为 null
+ *   sticky_order_positions   所有队列的位置映射（文章属于多个分类时使用）
  *
  * @package StickyOrder
  */
@@ -26,7 +27,7 @@ class Sticky_Order_REST {
 		add_action( 'rest_api_init', array( __CLASS__, 'register' ) );
 	}
 
-	/** 注册两个只读的文章字段。 */
+	/** 注册三个只读的文章字段。 */
 	public static function register() {
 		$post_types = sticky_order_post_types();
 		if ( ! $post_types ) {
@@ -34,15 +35,20 @@ class Sticky_Order_REST {
 		}
 
 		$fields = array(
-			'sticky_order_position' => array(
+			'sticky_order_position'  => array(
 				'method'      => 'position_of',
-				'description' => __( 'Position in its sticky queue, starting at 0; null when the post is not queued.', 'sticky-order' ),
+				'description' => __( 'Position in its primary sticky queue, starting at 0; null when the post is not queued.', 'sticky-order' ),
 				'type'        => array( 'integer', 'null' ),
 			),
-			'sticky_order_queue'    => array(
+			'sticky_order_queue'     => array(
 				'method'      => 'queue_of',
-				'description' => __( 'Key of the queue the post belongs to; null when the post is not queued.', 'sticky-order' ),
+				'description' => __( 'Key of the primary queue the post belongs to; null when the post is not queued.', 'sticky-order' ),
 				'type'        => array( 'string', 'null' ),
+			),
+			'sticky_order_positions' => array(
+				'method'      => 'positions_of',
+				'description' => __( 'All queue positions for the post, keyed by queue; null when the post is not queued.', 'sticky-order' ),
+				'type'        => array( 'object', 'null' ),
 			),
 		);
 

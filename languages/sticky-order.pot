@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Sticky Order 3.1.0\n"
+"Project-Id-Version: Sticky Order 3.2.0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -37,8 +37,11 @@ msgstr ""
 msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-msgid "Position in its sticky queue, starting at 0; null when the post is not queued."
+msgid "Position in its primary sticky queue, starting at 0; null when the post is not queued."
 msgstr ""
 
-msgid "Key of the queue the post belongs to; null when the post is not queued."
+msgid "Key of the primary queue the post belongs to; null when the post is not queued."
+msgstr ""
+
+msgid "All queue positions for the post, keyed by queue; null when the post is not queued."
 msgstr ""
