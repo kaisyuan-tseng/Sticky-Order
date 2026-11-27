@@ -249,6 +249,9 @@ class Sticky_Order_Queue {
 	/**
 	 * 识别查询是否只限定在一个分组分类内。
 	 *
+	 * 支持 category_name、cat、category__in、tax_query（term_id / slug /
+	 * name / term_taxonomy_id）。多分类查询无法同时套用两套顺序，返回 null。
+	 *
 	 * @param WP_Query|null $query 当前查询.
 	 * @return string|null 分组 slug；不是单分类查询时返回 null.
 	 */
@@ -314,14 +317,22 @@ class Sticky_Order_Queue {
 				$field = isset( $clause['field'] ) ? (string) $clause['field'] : 'term_id';
 
 				foreach ( (array) $clause['terms'] as $term_value ) {
+					if ( 'name' === $field ) {
+						$term = get_term_by( 'name', (string) $term_value, $taxonomy );
+						if ( $term && ! is_wp_error( $term ) ) {
+							$slugs[] = $term->slug;
+						}
+						continue;
+					}
+
 					foreach ( preg_split( '/[,\s]+/', (string) $term_value ) as $single ) {
 						if ( 'slug' === $field ) {
 							$slugs[] = sanitize_title( $single );
 							continue;
 						}
 
-						if ( 'name' === $field ) {
-							$term = get_term_by( 'name', $single, $taxonomy );
+						if ( 'term_taxonomy_id' === $field ) {
+							$term = get_term_by( 'term_taxonomy_id', (int) $single, $taxonomy );
 						} else {
 							$term = get_term( (int) $single, $taxonomy );
 						}
